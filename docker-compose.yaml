@@ -1,0 +1,32 @@
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: appdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    environment:
+      # Tell Adminer to load the plugin
+      ADMINER_PLUGINS: autologin
+      # Build-in env var for setting database hostname
+      ADMINER_DEFAULT_SERVER: database
+      # Credentials and options the plugin reads
+      ADMINER_DEFAULT_DRIVER: pgsql
+      ADMINER_DEFAULT_DB: appdb
+      ADMINER_DEFAULT_USERNAME: postgres
+      ADMINER_DEFAULT_PASSWORD: postgres
+    volumes:
+      # Bind-mount the plugin into the plugins dir
+      - ./autologin.php:/var/www/html/plugins/autologin.php:ro
+    depends_on:
+      - database
+
+volumes:
+  pgdata:
